@@ -116,14 +116,20 @@ When `--clean` is enabled:
 
 ##  📝 Changelog
 
-### v1.0.0
-- Initial stable release
-- Mermaid SVG generation
-- Multi-language translation system
-- Validation: missing / unused / duplicate keys
-- Automatic cleanup support
-- Progress bars with ETA
-- CI-friendly behavior
+### v1.0.1 #Minor-Update
+- **Fix :**
+  - Gererating files's progress bar
+  - Spacing on some line
+   
+### v1.0.0 #Initial-Release
+- **Add :**
+  - Initial stable release
+  - Mermaid SVG generation
+  - Multi-language translation system
+  - Validation: missing / unused / duplicate keys
+  - Automatic cleanup support
+  - Progress bars with ETA
+  - CI-friendly behavior
 
 ## 👤 Authors & Collaborators
 

@@ -217,7 +217,14 @@ show_progress_bar() {
             $((remaining_time % 60))
     fi
 }
-
+print_message_above_bar() {
+    local msg="$1"
+    tput sc          # save cursor
+    tput cuu1        # move up 1 line
+    tput el          # clear the line
+    echo "$msg"
+    tput rc          # restore cursor
+}    
 ##############################################
 # Extract and Check PlaceHolders
 ##############################################
@@ -409,6 +416,8 @@ validate_placeholders() {
             fi
         done < <(jq -r 'keys[]' "$json_file" 2>/dev/null)
     done
+    show_progress_bar 1 1 
+
     echo ""
 
 
@@ -591,6 +600,7 @@ save_keys_with_values_to_json() {
     echo "$json_output" | jq . > "$tmp" || { echo "❌ jq failed"; rm -f "$tmp"; return 1; }
     mv "$tmp" "$json_file" || { echo "❌ mv failed"; rm -f "$tmp"; return 1; }
 
+    echo ""
     echo "✅ Keys saved to $json_file"
     sleep 0.2
 }
@@ -673,6 +683,7 @@ clean_unused_keys() {
     done
     save_keys_with_values_to_json "$deleted_keys_file" "${keys_to_save_deleted[@]}"
 
+    echo ""
     echo "✅ $cleaned_count key(s) removed"
     sleep 0.2
     echo ""
@@ -724,7 +735,9 @@ load_translations() {
     show_progress_bar "$total_files" "$total_files"
     echo ""
 
+    echo ""
     echo "✅ $count keys loaded"
+    echo ""
     sleep 0.2
     return 0
 }
@@ -756,10 +769,18 @@ convert_to_svg() {
 
     # If a config file exists, use it
     if [[ -f "$MERMAID_CONFIG" ]]; then
-        $MMDC -i "$input" -o "$output" -c "$MERMAID_CONFIG" -b transparent
+        output=$($MMDC -i "$input" -o "$output" -c "$MERMAID_CONFIG" -b transparent 2>&1 >/dev/null)
+        status=$?
+        if [[ $status -ne 0 ]]; then
+            echo "❌ Failed: $output"
+        fi
     else
         # Otherwise, use dark theme via command line
-        $MMDC -i "$input" -o "$output" -t dark -b transparent 
+        output=$($MMDC -i "$input" -o "$output" -t dark -b transparent 2>&1 >/dev/null)
+        status=$?
+        if [[ $status -ne 0 ]]; then
+            echo "❌ Failed: $output"
+        fi
     fi
 
     # Delete temp file
@@ -813,6 +834,7 @@ process_language() {
         return 1
     fi
 
+    echo ""
     echo "→ $total_files Mermaid file(s) to process"
     echo ""
     sleep 0.3
@@ -834,20 +856,24 @@ process_language() {
 
         # Generate translated MMD file
         apply_translations "$file" > "$tmp"
-        # Generate translated MMD file
-        apply_translations "$file" > "$tmp"
 
-        # Convert to SVG
-        if ! convert_to_svg "$tmp" "$svg"; then
-            echo "❌ Failed to generate SVG for $file"
+        # Convert to SVG silently
+        if ! convert_to_svg "$tmp" "$svg" >/dev/null 2>&1; then
             ((errors++))
+            echo "" 
+            print_message_above_bar "❌ Failed to generate: $file"
         else
-            echo "   ✓ Generated: $svg"
+            echo "" 
+            print_message_above_bar "   ✓ Generated: $svg"
         fi
-        
+
+        # Update progress bar (always on last line)
         show_progress_bar "$current" "$total_files"
-        sleep 0.1
+        sleep 0.05
     done
+
+    # Add a newline after finishing the bar
+    echo ""
 
     # Calculate total time
     end_time=$(date +%s)
