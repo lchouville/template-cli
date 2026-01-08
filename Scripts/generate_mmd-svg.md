@@ -63,8 +63,10 @@ This will:
 - Verify Node.js and npm
 - Install Mermaid CLI locally
 - Validate required system tools
+## Config
+Adding Config for SVG MMD-CLI on `/Documents/Graph/mermaid-config.json` fill with [mermaid doc](https://mermaid.js.org/intro/)
 
-▶️ Usage
+## ▶️ Usage
 ```sh
 ./Scripts/generate_mmd-svg.sh [options]
 ```
@@ -115,6 +117,10 @@ When `--clean` is enabled:
 - JSON reports are updated incrementally
 
 ##  📝 Changelog
+
+### v1.0.2 #Minor-Update
+- **Fix :**
+  - mermaid-conf.json
 
 ### v1.0.1 #Minor-Update
 - **Fix :**

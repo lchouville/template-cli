@@ -7,7 +7,7 @@ SOURCE_DIR="./Documents/Edition-files"
 DEST_DIR="./Documents/Graph"
 TRANSLATIONS_DIR="./Translations/Mermaid"
 MMDC="./node_modules/.bin/mmdc"
-MERMAID_CONFIG="./mermaid-config.json"
+MERMAID_CONFIG="./Documents/Graph/mermaid-config.json"
 MISSING_KEYS_FILE="./Translations/addedKey.json"
 
 # Associative arrays
@@ -841,7 +841,13 @@ process_language() {
 
     # Start timer
     start_time=$(date +%s)
-
+    # If a config file exists, use it
+    if [[ -f "$MERMAID_CONFIG" ]]; then
+        echo "→ Using Mermaid config: $MERMAID_CONFIG"
+    else
+        echo "→ Using default Mermaid config with dark theme and transparent background"
+    fi
+        echo ""
     for file in "${files_to_process[@]}"; do
         ((current++))
 
@@ -861,10 +867,10 @@ process_language() {
         if ! convert_to_svg "$tmp" "$svg" >/dev/null 2>&1; then
             ((errors++))
             echo "" 
-            print_message_above_bar "❌ Failed to generate: $file"
+            print_message_above_bar "❌ Failed to generate: $name.svg"
         else
             echo "" 
-            print_message_above_bar "   ✓ Generated: $svg"
+            print_message_above_bar "   ✓ Generated: $name.svg"
         fi
 
         # Update progress bar (always on last line)
